@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Blog {
+  id                    String    @id @default(uuid()) @db.Uuid
+  slug                  String    @unique @db.VarChar(255)
+  title                 String    @db.VarChar(500)
+  description           String?   @db.Text
+  author                String?   @db.VarChar(255)
+  coverImageUrl         String?   @map("cover_image_url") @db.Text
+  publishedAt           DateTime? @map("published_at") @db.Timestamp(6)
+  readTime              Int?      @map("read_time")
+  layoutType            String    @default("single-column") @map("layout_type") @db.VarChar(50)
+  maxWidth              String    @default("800px") @map("max_width") @db.VarChar(50)
+  showTableOfContents   Boolean   @default(false) @map("show_table_of_contents")
+  enableVoting          Boolean   @default(true) @map("enable_voting")
+  enableSocialShare     Boolean   @default(true) @map("enable_social_share")
+  enableComments        Boolean   @default(true) @map("enable_comments")
+  status                String    @default("published") @db.VarChar(50)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  blocks                BlogBlock[]
+  tags                   BlogTag[]
+  links                  BlogLink[]
+  votes                  BlogVote[]
+  comments               Comment[]
+  calendarEvents         CalendarEvent[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@map("blogs")
+}
+
+model BlogBlock {
+  id          String   @id @default(uuid()) @db.Uuid
+  blogId      String   @map("blog_id") @db.Uuid
+  blockType   String   @map("block_type") @db.VarChar(50)
+  blockOrder  Int      @map("block_order")
+  content     Json     @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([blogId])
+  @@index([blogId, blockOrder])
+  @@map("blog_blocks")
+}
+
+model Tag {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(100)
+  slug        String    @unique @db.VarChar(100)
+  description String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  blogs       BlogTag[]
+
+  @@index([slug])
+  @@index([name])
+  @@map("tags")
+}
+
+model BlogTag {
+  blogId  String @map("blog_id") @db.Uuid
+  tagId   String @map("tag_id") @db.Uuid
+
+  blog    Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogId, tagId])
+  @@index([blogId])
+  @@index([tagId])
+  @@map("blog_tags")
+}
+
+model BlogLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  blogId    String   @map("blog_id") @db.Uuid
+  label     String   @db.VarChar(255)
+  url       String   @db.Text
+  linkType  String   @default("external") @map("link_type") @db.VarChar(50)
+  linkOrder Int      @default(0) @map("link_order")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([blogId])
+  @@map("blog_links")
+}
+
+model BlogVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  blogId    String   @map("blog_id") @db.Uuid
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  sessionId String?  @map("session_id") @db.VarChar(255)
+  voteType  String   @map("vote_type") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([blogId, ipAddress, sessionId])
+  @@index([blogId])
+  @@index([ipAddress])
+  @@map("blog_votes")
+}
+
+model CalendarEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  eventDate   DateTime  @map("event_date") @db.Date
+  startTime   String?   @map("start_time")
+  endTime     String?   @map("end_time")
+  color       String    @default("blue") @db.VarChar(50)
+  blogId      String?   @map("blog_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  blog        Blog?     @relation(fields: [blogId], references: [id], onDelete: SetNull)
+
+  @@index([eventDate])
+  @@index([blogId])
+  @@map("calendar_events")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  blogId    String   @map("blog_id") @db.Uuid
+  name      String   @db.VarChar(255)
+  comment   String   @db.Text
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  status    String   @default("approved") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([blogId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([blogId, status])
+  @@map("comments")
+}
+
+model SearchHistory {
+  id           String    @id @default(uuid()) @db.Uuid
+  ipAddress    String?   @map("ip_address") @db.VarChar(45)
+  query        String    @db.Text
+  resultsCount Int?      @map("results_count")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([ipAddress])
+  @@index([createdAt])
+  @@map("search_history")
+}
