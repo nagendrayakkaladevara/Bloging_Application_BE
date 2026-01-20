@@ -1,9 +1,9 @@
-import { body, query, param, ValidationChain, validationResult } from 'express-validator';
+import { body, query, param, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from './errorHandler';
 
 // Standalone middleware to check validation results from previous validation chains
-export const validate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const validate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

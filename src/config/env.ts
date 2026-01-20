@@ -10,7 +10,14 @@ function ensureSslMode(url: string): string {
   const lower = url.toLowerCase();
   
   // Remove channel_binding=require as it can cause connection issues with Neon
-  url = url.replace(/[&?]channel_binding=require/gi, '');
+  // Handle both ?channel_binding=require and &channel_binding=require cases
+  // First remove &channel_binding=require (when it's not the first parameter)
+  url = url.replace(/&channel_binding=require/gi, '');
+  // Then handle ?channel_binding=require (when it's the first parameter)
+  // If followed by other params, replace with ?; if it's the only param, remove entirely
+  url = url.replace(/\?channel_binding=require(&|$)/gi, (_match, trailing) => trailing ? '?' : '');
+  // Clean up any malformed query strings (e.g., ?& becomes ?)
+  url = url.replace(/\?&+/g, '?');
   
   // For Neon, optimize connection string for serverless
   if (lower.includes('neon.tech')) {

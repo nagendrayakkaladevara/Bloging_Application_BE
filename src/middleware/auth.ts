@@ -4,7 +4,7 @@ import { config } from '../config/env';
 
 export function requireAdminApiKey(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   const apiKey = req.headers['x-api-key'] as string;

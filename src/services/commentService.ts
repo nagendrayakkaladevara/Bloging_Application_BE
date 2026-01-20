@@ -1,6 +1,7 @@
 import { prisma } from '../config/database';
 import { Comment } from '../types';
 import { AppError } from '../middleware/errorHandler';
+import { Prisma } from '@prisma/client';
 
 export class CommentService {
   async getComments(blogSlug: string, params: {
@@ -24,7 +25,9 @@ export class CommentService {
     }
 
     // Get comments
-    const orderBy = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+    const orderBy: Prisma.CommentOrderByWithRelationInput = sort === 'oldest' 
+      ? { createdAt: 'asc' } 
+      : { createdAt: 'desc' };
 
     const [comments, total] = await Promise.all([
       prisma.comment.findMany({

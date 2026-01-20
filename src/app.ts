@@ -39,12 +39,12 @@ export function createApp(): Express {
   }
 
   // Health check
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
   // Database health check
-  app.get('/health/db', async (req, res) => {
+  app.get('/health/db', async (_req, res) => {
     try {
       const { prisma } = await import('./config/database');
       await prisma.$queryRaw`SELECT 1`;

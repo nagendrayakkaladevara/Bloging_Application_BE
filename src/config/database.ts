@@ -31,7 +31,6 @@ if (config.nodeEnv !== 'production') {
 // Test database connection with better error handling and retry
 async function testConnection() {
   const maxRetries = 3;
-  let lastError: any;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -39,7 +38,6 @@ async function testConnection() {
       console.log('✅ Database connected successfully');
       return; // Success, exit function
     } catch (err: any) {
-      lastError = err;
       
       // If it's a connection error and we have retries left, wait and retry
       if ((err.code === 'P1001' || err.code === 'P1008') && attempt < maxRetries - 1) {

@@ -1,5 +1,5 @@
 import { prisma } from '../config/database';
-import { BlogPreview, BlogDetail } from '../types';
+import { BlogPreview, BlogDetail, BlogBlock } from '../types';
 import { generateSlug } from '../utils/slug';
 import { calculateReadTime } from '../utils/readTime';
 import { AppError } from '../middleware/errorHandler';
@@ -77,7 +77,7 @@ export class BlogService {
     }
 
     // Build orderBy
-    let orderBy: Prisma.BlogOrderByWithRelationInput;
+    let orderBy: Prisma.BlogOrderByWithRelationInput | Prisma.BlogOrderByWithRelationInput[];
     switch (sort) {
       case 'oldest':
         orderBy = [
@@ -186,10 +186,6 @@ export class BlogService {
       return null;
     }
 
-    if (!blog) {
-      return null;
-    }
-
     // Get comments count (with retry)
     const commentsCount = await queryWithRetry(async () => {
       return await prisma.comment.count({
@@ -261,14 +257,10 @@ export class BlogService {
     // Calculate read time from blocks
     let readTime = null;
     if (data.blocks && data.blocks.length > 0) {
-      const tempBlocks = data.blocks.map((b, idx) => ({
+      const tempBlocks: BlogBlock[] = data.blocks.map((b) => ({
         id: '',
-        blogId: '',
-        blockType: b.type as any,
-        blockOrder: b.order || idx,
+        type: b.type as BlogBlock['type'],
         content: b.content,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       }));
       readTime = calculateReadTime(tempBlocks);
     }
@@ -299,7 +291,7 @@ export class BlogService {
     );
 
     // Create blog with relations (with retry for connection errors)
-    const blog = await queryWithRetry(async () => {
+    await queryWithRetry(async () => {
       return await prisma.blog.create({
       data: {
         slug,
@@ -360,7 +352,19 @@ export class BlogService {
     return completeBlog;
   }
 
-  async updateBlog(slug: string, data: Partial<typeof data>): Promise<BlogDetail> {
+  async updateBlog(slug: string, data: Partial<{
+    title: string;
+    description?: string;
+    slug?: string;
+    author?: string;
+    coverImage?: string;
+    layout?: { type?: string; maxWidth?: string; showTableOfContents?: boolean };
+    settings?: { enableVoting?: boolean; enableSocialShare?: boolean; enableComments?: boolean };
+    tags?: string[];
+    links?: Array<{ label: string; url: string; type?: string }>;
+    blocks?: Array<{ type: string; content: any; order?: number }>;
+    status?: string;
+  }>): Promise<BlogDetail> {
     // Get existing blog (with retry)
     const existingBlog = await queryWithRetry(async () => {
       return await prisma.blog.findUnique({
@@ -381,14 +385,10 @@ export class BlogService {
     // Recalculate read time if blocks changed
     let readTime = existingBlog.readTime;
     if (data.blocks && data.blocks.length > 0) {
-      const tempBlocks = data.blocks.map((b, idx) => ({
+      const tempBlocks: BlogBlock[] = data.blocks.map((b) => ({
         id: '',
-        blogId: '',
-        blockType: b.type as any,
-        blockOrder: b.order || idx,
+        type: b.type as BlogBlock['type'],
         content: b.content,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       }));
       readTime = calculateReadTime(tempBlocks);
     }
@@ -405,7 +405,7 @@ export class BlogService {
 
       // Create new tag connections (with retry)
       tagConnections = await Promise.all(
-        data.tags.map(async (tagName) => {
+        data.tags.map(async (tagName: string) => {
           const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-');
           let tag = await queryWithRetry(async () => {
             return await prisma.tag.findUnique({
@@ -464,7 +464,7 @@ export class BlogService {
     if (data.links) {
       updateData.links = {
         deleteMany: {},
-        create: data.links.map((link, idx) => ({
+        create: data.links.map((link: { label: string; url: string; type?: string }, idx: number) => ({
           label: link.label,
           url: link.url,
           linkType: (link.type || 'external') as 'internal' | 'external',
@@ -476,7 +476,7 @@ export class BlogService {
     if (data.blocks) {
       updateData.blocks = {
         deleteMany: {},
-        create: data.blocks.map((block, idx) => ({
+        create: data.blocks.map((block: { type: string; content: any; order?: number }, idx: number) => ({
           blockType: block.type as any,
           blockOrder: block.order || idx,
           content: block.content as Prisma.InputJsonValue,

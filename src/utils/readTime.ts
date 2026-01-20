@@ -4,7 +4,7 @@ export function calculateReadTime(blocks: BlogBlock[]): number {
   let totalWords = 0;
 
   for (const block of blocks) {
-    switch (block.block_type) {
+    switch (block.type) {
       case 'heading':
         if (block.content.text) {
           totalWords += block.content.text.split(/\s+/).length;
