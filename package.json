@@ -5,8 +5,9 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
@@ -30,6 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.7.1",
+    "@vercel/node": "^3.0.7",
     "express": "^4.18.2",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",

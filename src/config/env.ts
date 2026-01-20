@@ -57,12 +57,18 @@ function ensureSslMode(url: string): string {
   return url;
 }
 
-const databaseUrl = ensureSslMode(process.env.DATABASE_URL || '');
-process.env.DATABASE_URL = databaseUrl;
+const nodeEnv = process.env.NODE_ENV || 'development';
+const rawDatabaseUrl = process.env.DATABASE_URL || '';
+
+// Only process database URL if it exists
+const databaseUrl = rawDatabaseUrl ? ensureSslMode(rawDatabaseUrl) : '';
+if (databaseUrl) {
+  process.env.DATABASE_URL = databaseUrl;
+}
 
 export const config = {
   port: parseInt(process.env.PORT || '3000', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv,
   databaseUrl,
   adminApiKey: process.env.ADMIN_API_KEY || '',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3001',
@@ -74,10 +80,19 @@ export const config = {
 };
 
 // Validate required environment variables
+// Log warnings but don't throw during module initialization
+// Let the application handle errors at runtime
 if (!config.databaseUrl) {
-  throw new Error('DATABASE_URL is required');
+  const errorMsg = 'DATABASE_URL is required. Please set it in your environment variables.';
+  if (config.nodeEnv === 'production') {
+    console.error('❌ Fatal error:', errorMsg);
+    console.error('   The application will fail at runtime without DATABASE_URL');
+  } else {
+    console.warn('⚠️  Warning:', errorMsg);
+    console.warn('   The application may not work correctly without DATABASE_URL');
+  }
 }
 
 if (config.nodeEnv === 'production' && !config.adminApiKey) {
-  throw new Error('ADMIN_API_KEY is required in production');
+  console.warn('⚠️  Warning: ADMIN_API_KEY is not set in production. Admin endpoints may not be secure.');
 }
