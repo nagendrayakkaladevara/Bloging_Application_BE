@@ -18,7 +18,7 @@ export const prisma =
     },
     // Optimize for Neon's serverless connection pooling
     // This helps with connection reuse and reduces connection errors
-    ...(config.databaseUrl.includes('neon.tech') && {
+    ...(config.databaseUrl && config.databaseUrl.includes('neon.tech') && {
       // Use connection pooling for better performance
       // Prisma will manage connections more efficiently
     }),
@@ -29,7 +29,19 @@ if (config.nodeEnv !== 'production') {
 }
 
 // Test database connection with better error handling and retry
+// IMPORTANT: In serverless environments (Vercel, AWS Lambda), we MUST NOT:
+// 1. Call process.exit() - it kills the entire function
+// 2. Test connections at module load - connections should be lazy
+// 3. Block the module initialization - it prevents the function from loading
 async function testConnection() {
+  // Skip connection test in serverless environments
+  // Serverless functions should use lazy connections (connect on first query)
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL_ENV) {
+    console.log('⚠️  Serverless environment detected: Skipping initial connection test');
+    console.log('   Database connections will be established lazily on first query');
+    return;
+  }
+
   const maxRetries = 3;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -68,22 +80,27 @@ async function testConnection() {
         }
       }
       
-      // Don't exit in development, allow server to start
-      // The retry mechanism in queryWithRetry will handle connection errors at runtime
-      if (config.nodeEnv === 'production') {
-        console.error('\n⚠️  Production mode: Server will exit due to database connection failure');
+      // NEVER call process.exit() in serverless - it kills the function!
+      // Only exit in traditional server environments (not serverless)
+      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL_ENV;
+      if (config.nodeEnv === 'production' && !isServerless) {
+        console.error('\n⚠️  Production mode (traditional server): Server will exit due to database connection failure');
         process.exit(1);
       } else {
-        console.warn('\n⚠️  Development mode: Server will continue, but database operations may fail');
+        console.warn('\n⚠️  Serverless/Development mode: Server will continue, but database operations may fail');
         console.warn('   The retry mechanism will attempt to reconnect on first database query');
       }
-      return; // Exit function even on failure in development
+      return; // Exit function even on failure
     }
   }
 }
 
 // Test connection (non-blocking, runs in background)
-testConnection();
+// Only run in non-serverless environments (traditional servers)
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL_ENV;
+if (!isServerless) {
+  testConnection();
+}
 
 // Graceful shutdown
 process.on('beforeExit', async () => {
