@@ -26,8 +26,8 @@ export class CommentService {
 
     // Get comments
     const orderBy: Prisma.CommentOrderByWithRelationInput = sort === 'oldest' 
-      ? { createdAt: 'asc' } 
-      : { createdAt: 'desc' };
+      ? { createdAt: Prisma.SortOrder.asc } 
+      : { createdAt: Prisma.SortOrder.desc };
 
     const [comments, total] = await Promise.all([
       prisma.comment.findMany({

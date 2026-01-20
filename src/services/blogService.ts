@@ -257,7 +257,7 @@ export class BlogService {
     // Calculate read time from blocks
     let readTime = null;
     if (data.blocks && data.blocks.length > 0) {
-      const tempBlocks: BlogBlock[] = data.blocks.map((b) => ({
+      const tempBlocks: BlogBlock[] = data.blocks.map((b: { type: string; content: any; order?: number }) => ({
         id: '',
         type: b.type as BlogBlock['type'],
         content: b.content,
@@ -267,7 +267,7 @@ export class BlogService {
 
     // Process tags - get or create (with retry for connection errors)
     const tagConnections = await Promise.all(
-      (data.tags || []).map(async (tagName) => {
+      (data.tags || []).map(async (tagName: string) => {
         const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-');
         let tag = await queryWithRetry(async () => {
           return await prisma.tag.findUnique({
@@ -320,7 +320,7 @@ export class BlogService {
           })),
         },
         blocks: {
-          create: (data.blocks || []).map((block, idx) => ({
+          create: (data.blocks || []).map((block: { type: string; content: any; order?: number }, idx: number) => ({
             blockType: block.type as any,
             blockOrder: block.order || idx,
             content: block.content as Prisma.InputJsonValue,
@@ -385,7 +385,7 @@ export class BlogService {
     // Recalculate read time if blocks changed
     let readTime = existingBlog.readTime;
     if (data.blocks && data.blocks.length > 0) {
-      const tempBlocks: BlogBlock[] = data.blocks.map((b) => ({
+      const tempBlocks: BlogBlock[] = data.blocks.map((b: { type: string; content: any; order?: number }) => ({
         id: '',
         type: b.type as BlogBlock['type'],
         content: b.content,
