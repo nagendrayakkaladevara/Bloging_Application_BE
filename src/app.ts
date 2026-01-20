@@ -16,10 +16,10 @@ export function createApp(): Express {
   // Security middleware
   app.use(helmet());
 
-  // CORS
+  // CORS - Allow all origins
   app.use(
     cors({
-      origin: config.corsOrigin,
+      origin: true, // Allow all origins
       credentials: false,
     })
   );
