@@ -3,7 +3,8 @@ import { BlogPreview, BlogDetail } from '../types';
 import { generateSlug } from '../utils/slug';
 import { calculateReadTime } from '../utils/readTime';
 import { AppError } from '../middleware/errorHandler';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client'; 
+import { queryWithRetry } from '../utils/queryWithRetry';
 
 export class BlogService {
   async getAllBlogs(params: {
@@ -15,7 +16,7 @@ export class BlogService {
     search?: string;
   }): Promise<{ blogs: BlogPreview[]; total: number }> {
     const page = params.page || 1;
-    const limit = params.limit || 10;
+    const limit = Math.min(params.limit || 10, 50);
     const skip = (page - 1) * limit;
     const sort = params.sort || 'newest';
 
@@ -98,33 +99,42 @@ export class BlogService {
         break;
     }
 
-    // Get blogs with tags
-    const [blogs, total] = await Promise.all([
-      prisma.blog.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: Array.isArray(orderBy) ? orderBy : [orderBy],
-        include: {
-          tags: {
+    // Get blogs with tags - use retry wrapper for connection errors
+    try {
+      const [blogs, total] = await queryWithRetry(async () => {
+        return await Promise.all([
+          prisma.blog.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: Array.isArray(orderBy) ? orderBy : [orderBy],
             include: {
-              tag: true,
+              tags: {
+                include: {
+                  tag: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
             },
-          },
-        },
-      }),
-      prisma.blog.count({ where }),
-    ]);
+          }),
+          prisma.blog.count({ where }),
+        ]);
+      });
 
     // For popular sort, we need to sort by vote count
     if (sort === 'popular') {
       const blogsWithVotes = await Promise.all(
         blogs.map(async (blog) => {
-          const upvotes = await prisma.blogVote.count({
-            where: {
-              blogId: blog.id,
-              voteType: 'upvote',
-            },
+          const upvotes = await queryWithRetry(async () => {
+            return await prisma.blogVote.count({
+              where: {
+                blogId: blog.id,
+                voteType: 'upvote',
+              },
+            });
           });
           return { blog, upvotes };
         })
@@ -137,69 +147,88 @@ export class BlogService {
       };
     }
 
-    return {
-      blogs: blogs.map((blog) => this.mapToPreview(blog)),
-      total,
-    };
+      return {
+        blogs: blogs.map((blog) => this.mapToPreview(blog)),
+        total,
+      };
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      throw new AppError('INTERNAL_ERROR', 'Failed to fetch blogs', 500);
+    }
   }
 
   async getBlogBySlug(slug: string, ipAddress?: string, sessionId?: string): Promise<BlogDetail | null> {
-    const blog = await prisma.blog.findUnique({
-      where: { slug, status: 'published' },
-      include: {
-        blocks: {
-          orderBy: { blockOrder: 'asc' },
-        },
-        tags: {
-          include: {
-            tag: true,
+    const blog = await queryWithRetry(async () => {
+      return await prisma.blog.findUnique({
+        where: { slug },
+        include: {
+          blocks: {
+            orderBy: { blockOrder: 'asc' },
+          },
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+          links: {
+            orderBy: { linkOrder: 'asc' },
           },
         },
-        links: {
-          orderBy: { linkOrder: 'asc' },
-        },
-      },
+      });
     });
+
+    // Check if blog exists and is published
+    if (!blog || blog.status !== 'published') {
+      return null;
+    }
 
     if (!blog) {
       return null;
     }
 
-    // Get comments count
-    const commentsCount = await prisma.comment.count({
-      where: {
-        blogId: blog.id,
-        status: 'approved',
-      },
+    // Get comments count (with retry)
+    const commentsCount = await queryWithRetry(async () => {
+      return await prisma.comment.count({
+        where: {
+          blogId: blog.id,
+          status: 'approved',
+        },
+      });
     });
 
-    // Get voting stats
-    const [upvotes, downvotes, userVote] = await Promise.all([
-      prisma.blogVote.count({
-        where: {
-          blogId: blog.id,
-          voteType: 'upvote',
-        },
-      }),
-      prisma.blogVote.count({
-        where: {
-          blogId: blog.id,
-          voteType: 'downvote',
-        },
-      }),
-      ipAddress || sessionId
-        ? prisma.blogVote.findFirst({
-            where: {
-              blogId: blog.id,
-              OR: [
-                { ipAddress: ipAddress || undefined },
-                { sessionId: sessionId || undefined },
-              ],
-            },
-            select: { voteType: true },
-          })
-        : null,
-    ]);
+    // Get voting stats (with retry)
+    const [upvotes, downvotes, userVote] = await queryWithRetry(async () => {
+      return await Promise.all([
+        prisma.blogVote.count({
+          where: {
+            blogId: blog.id,
+            voteType: 'upvote',
+          },
+        }),
+        prisma.blogVote.count({
+          where: {
+            blogId: blog.id,
+            voteType: 'downvote',
+          },
+        }),
+        ipAddress || sessionId
+          ? prisma.blogVote.findFirst({
+              where: {
+                blogId: blog.id,
+                OR: [
+                  { ipAddress: ipAddress || undefined },
+                  { sessionId: sessionId || undefined },
+                ],
+              },
+              select: { voteType: true },
+            })
+          : null,
+      ]);
+    });
 
     return this.mapToDetail(
       blog,
@@ -244,20 +273,24 @@ export class BlogService {
       readTime = calculateReadTime(tempBlocks);
     }
 
-    // Process tags - get or create
+    // Process tags - get or create (with retry for connection errors)
     const tagConnections = await Promise.all(
       (data.tags || []).map(async (tagName) => {
         const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-');
-        let tag = await prisma.tag.findUnique({
-          where: { slug: tagSlug },
+        let tag = await queryWithRetry(async () => {
+          return await prisma.tag.findUnique({
+            where: { slug: tagSlug },
+          });
         });
 
         if (!tag) {
-          tag = await prisma.tag.create({
-            data: {
-              name: tagName,
-              slug: tagSlug,
-            },
+          tag = await queryWithRetry(async () => {
+            return await prisma.tag.create({
+              data: {
+                name: tagName,
+                slug: tagSlug,
+              },
+            });
           });
         }
 
@@ -265,8 +298,9 @@ export class BlogService {
       })
     );
 
-    // Create blog with relations
-    const blog = await prisma.blog.create({
+    // Create blog with relations (with retry for connection errors)
+    const blog = await queryWithRetry(async () => {
+      return await prisma.blog.create({
       data: {
         slug,
         title: data.title,
@@ -314,6 +348,7 @@ export class BlogService {
           orderBy: { linkOrder: 'asc' },
         },
       },
+      });
     });
 
     // Fetch complete blog
@@ -326,9 +361,11 @@ export class BlogService {
   }
 
   async updateBlog(slug: string, data: Partial<typeof data>): Promise<BlogDetail> {
-    // Get existing blog
-    const existingBlog = await prisma.blog.findUnique({
-      where: { slug },
+    // Get existing blog (with retry)
+    const existingBlog = await queryWithRetry(async () => {
+      return await prisma.blog.findUnique({
+        where: { slug },
+      });
     });
 
     if (!existingBlog) {
@@ -359,25 +396,31 @@ export class BlogService {
     // Process tags if provided
     let tagConnections: { tagId: string }[] | undefined;
     if (data.tags) {
-      // Delete existing tags
-      await prisma.blogTag.deleteMany({
-        where: { blogId: existingBlog.id },
+      // Delete existing tags (with retry)
+      await queryWithRetry(async () => {
+        return await prisma.blogTag.deleteMany({
+          where: { blogId: existingBlog.id },
+        });
       });
 
-      // Create new tag connections
+      // Create new tag connections (with retry)
       tagConnections = await Promise.all(
         data.tags.map(async (tagName) => {
           const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-');
-          let tag = await prisma.tag.findUnique({
-            where: { slug: tagSlug },
+          let tag = await queryWithRetry(async () => {
+            return await prisma.tag.findUnique({
+              where: { slug: tagSlug },
+            });
           });
 
           if (!tag) {
-            tag = await prisma.tag.create({
-              data: {
-                name: tagName,
-                slug: tagSlug,
-              },
+            tag = await queryWithRetry(async () => {
+              return await prisma.tag.create({
+                data: {
+                  name: tagName,
+                  slug: tagSlug,
+                },
+              });
             });
           }
 
@@ -441,9 +484,11 @@ export class BlogService {
       };
     }
 
-    await prisma.blog.update({
-      where: { id: existingBlog.id },
-      data: updateData,
+    await queryWithRetry(async () => {
+      return await prisma.blog.update({
+        where: { id: existingBlog.id },
+        data: updateData,
+      });
     });
 
     // Fetch updated blog
@@ -456,8 +501,10 @@ export class BlogService {
   }
 
   async deleteBlog(slug: string): Promise<void> {
-    const result = await prisma.blog.delete({
-      where: { slug },
+    const result = await queryWithRetry(async () => {
+      return await prisma.blog.delete({
+        where: { slug },
+      });
     });
 
     if (!result) {
@@ -477,7 +524,7 @@ export class BlogService {
         readTime: blog.readTime,
         coverImage: blog.coverImageUrl,
       },
-      tags: blog.tags?.map((bt: any) => bt.tag?.name || bt.name) || [],
+      tags: blog.tags?.map((bt: any) => bt.tag?.name || bt.name || '') || [],
     };
   }
 
@@ -491,55 +538,55 @@ export class BlogService {
     downvotes: number,
     userVote: 'upvote' | 'downvote' | null
   ): BlogDetail {
+    // Ensure required fields are not null
+    const description = blog.description || '';
+    const author = blog.author || '';
+    const publishedAt = blog.publishedAt ? blog.publishedAt.toISOString() : new Date().toISOString();
+    const readTime = blog.readTime ?? 0;
+
     return {
       id: blog.id,
       slug: blog.slug,
       meta: {
         title: blog.title,
-        description: blog.description,
-        author: blog.author,
-        publishedAt: blog.publishedAt ? blog.publishedAt.toISOString() : null,
-        readTime: blog.readTime,
-        coverImage: blog.coverImageUrl,
+        description,
+        author,
+        publishedAt,
+        readTime,
+        coverImage: blog.coverImageUrl || undefined,
       },
       layout: {
-        type: blog.layoutType,
-        maxWidth: blog.maxWidth,
-        showTableOfContents: blog.showTableOfContents,
+        type: blog.layoutType || 'single-column',
+        maxWidth: blog.maxWidth || '1200px',
+        showTableOfContents: blog.showTableOfContents || false,
       },
       settings: {
-        enableVoting: blog.enableVoting,
-        enableSocialShare: blog.enableSocialShare,
-        enableComments: blog.enableComments,
+        enableVoting: blog.enableVoting ?? true,
+        enableSocialShare: blog.enableSocialShare ?? true,
+        enableComments: blog.enableComments ?? true,
       },
       commentsCount,
-      tags,
+      tags: tags || [],
+      // Transform links to frontend format: { label, url, type }
       links: links.map((l) => ({
-        id: l.id,
-        blog_id: l.blogId,
         label: l.label,
         url: l.url,
-        link_type: l.linkType,
-        link_order: l.linkOrder,
-        created_at: l.createdAt,
+        type: l.linkType || 'external',
       })),
+      // Transform blocks to frontend format: { id, type, content }
       blocks: blocks.map((b) => ({
         id: b.id,
-        blog_id: b.blogId,
-        block_type: b.blockType,
-        block_order: b.blockOrder,
+        type: b.blockType,
         content: typeof b.content === 'string' ? JSON.parse(b.content) : b.content,
-        created_at: b.createdAt,
-        updated_at: b.updatedAt,
       })),
       voting: {
-        enabled: blog.enableVoting,
-        upvotes,
-        downvotes,
-        userVote,
+        enabled: blog.enableVoting ?? true,
+        upvotes: upvotes || 0,
+        downvotes: downvotes || 0,
+        userVote: userVote || null,
       },
       socialShare: {
-        enabled: blog.enableSocialShare,
+        enabled: blog.enableSocialShare ?? true,
         platforms: ['twitter', 'facebook', 'linkedin', 'copy'],
       },
     };

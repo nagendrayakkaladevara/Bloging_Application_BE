@@ -2,10 +2,9 @@ import { body, query, param, ValidationChain, validationResult } from 'express-v
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from './errorHandler';
 
-export const validate = (validations: ValidationChain[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(validations.map(validation => validation.run(req)));
-
+// Standalone middleware to check validation results from previous validation chains
+export const validate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const errorDetails: Record<string, string[]> = {};
@@ -17,16 +16,18 @@ export const validate = (validations: ValidationChain[]) => {
         errorDetails[field].push(error.msg);
       });
 
-      throw new AppError(
+      return next(new AppError(
         'VALIDATION_ERROR',
         'Validation failed',
         422,
         { fields: errorDetails }
-      );
+      ));
     }
 
     next();
-  };
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Blog validation

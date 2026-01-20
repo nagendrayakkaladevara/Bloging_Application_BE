@@ -21,12 +21,8 @@ export interface Blog {
 
 export interface BlogBlock {
   id: string;
-  blog_id: string;
-  block_type: 'heading' | 'paragraph' | 'code' | 'image' | 'callout' | 'list' | 'quote' | 'divider';
-  block_order: number;
+  type: 'heading' | 'paragraph' | 'code' | 'image' | 'callout' | 'list' | 'quote' | 'divider';
   content: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
 }
 
 export interface Tag {
@@ -43,13 +39,9 @@ export interface BlogTag {
 }
 
 export interface BlogLink {
-  id: string;
-  blog_id: string;
   label: string;
   url: string;
-  link_type: 'internal' | 'external';
-  link_order: number;
-  created_at: Date;
+  type: 'internal' | 'external';
 }
 
 export interface BlogVote {
@@ -115,11 +107,11 @@ export interface PaginationMeta {
 
 export interface BlogMeta {
   title: string;
-  description: string | null;
-  author: string | null;
-  publishedAt: string | null;
-  readTime: number | null;
-  coverImage: string | null;
+  description: string;
+  author: string;
+  publishedAt: string;
+  readTime: number;
+  coverImage?: string;
 }
 
 export interface BlogLayout {

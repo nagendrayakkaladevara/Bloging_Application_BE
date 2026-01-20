@@ -4,16 +4,6 @@ import { prisma } from './config/database';
 
 const app = createApp();
 
-// Test database connection
-prisma.$connect()
-  .then(() => {
-    console.log('Database connection successful');
-  })
-  .catch((err) => {
-    console.error('Database connection failed:', err);
-    process.exit(1);
-  });
-
 const server = app.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`);
   console.log(`Environment: ${config.nodeEnv}`);

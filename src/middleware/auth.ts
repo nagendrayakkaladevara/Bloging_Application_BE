@@ -10,19 +10,19 @@ export function requireAdminApiKey(
   const apiKey = req.headers['x-api-key'] as string;
 
   if (!apiKey) {
-    throw new AppError(
+    return next(new AppError(
       'UNAUTHORIZED',
       'API key is required for this operation',
       401
-    );
+    ));
   }
 
   if (apiKey !== config.adminApiKey) {
-    throw new AppError(
+    return next(new AppError(
       'UNAUTHORIZED',
       'Invalid API key',
       401
-    );
+    ));
   }
 
   next();

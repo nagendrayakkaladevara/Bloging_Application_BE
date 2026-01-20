@@ -1,0 +1,722 @@
+{
+	"info": {
+		"_postman_id": "blog-api-collection",
+		"name": "Blog Platform API",
+		"description": "Complete API collection for Blog Platform backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Blogs",
+			"item": [
+				{
+					"name": "Get All Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/blogs?page=1&limit=10&sort=newest",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "newest",
+									"description": "newest, oldest, popular"
+								},
+								{
+									"key": "tags",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "author",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Blog by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Blog",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"New Blog Post\",\n  \"description\": \"Blog description\",\n  \"slug\": \"new-blog-post\",\n  \"author\": \"John Doe\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1633356122544-f134324a6cee\",\n  \"layout\": {\n    \"type\": \"single-column\",\n    \"maxWidth\": \"800px\",\n    \"showTableOfContents\": false\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"React\", \"TypeScript\"],\n  \"links\": [\n    {\n      \"label\": \"External Link\",\n      \"url\": \"https://example.com\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"Introduction\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"This is the content of the blog post.\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+				{
+					"name": "Update Blog",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Blog Post\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "new-blog-post"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Blog",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "new-blog-post"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Voting",
+			"item": [
+				{
+					"name": "Vote on Blog",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Session-Id",
+								"value": "{{session_id}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"voteType\": \"upvote\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/vote",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "vote"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Remove Vote",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Session-Id",
+								"value": "{{session_id}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/vote",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "vote"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/comments?page=1&limit=20&sort=newest",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "comments"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "newest"
+								}
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"comment\": \"Great article! Very helpful.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/comments",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "comments"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/comments/:commentId",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "comments", ":commentId"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								},
+								{
+									"key": "commentId",
+									"value": "comment-uuid-here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Comment Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs/:slug/comments/:commentId/status",
+							"host": ["{{base_url}}"],
+							"path": ["blogs", ":slug", "comments", ":commentId", "status"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "getting-started-with-react"
+								},
+								{
+									"key": "commentId",
+									"value": "comment-uuid-here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/search?q=react typescript&page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "react typescript"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "tags",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Get All Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags?popular=true&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["tags"],
+							"query": [
+								{
+									"key": "popular",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Blogs by Tag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags/:slug?page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["tags", ":slug"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "react"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Calendar Events",
+			"item": [
+				{
+					"name": "Get Calendar Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/calendar/events?startDate=2024-01-01&endDate=2024-01-31",
+							"host": ["{{base_url}}"],
+							"path": ["calendar", "events"],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-01-01",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-31",
+									"disabled": true
+								},
+								{
+									"key": "blogId",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Calendar Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Blog Review Meeting\",\n  \"description\": \"Review upcoming blog posts\",\n  \"date\": \"2024-01-18\",\n  \"startTime\": \"14:00\",\n  \"endTime\": \"15:30\",\n  \"color\": \"green\",\n  \"blogId\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/calendar/events",
+							"host": ["{{base_url}}"],
+							"path": ["calendar", "events"]
+						}
+					}
+				},
+				{
+					"name": "Update Calendar Event",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Event Title\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/calendar/events/:id",
+							"host": ["{{base_url}}"],
+							"path": ["calendar", "events", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "event-uuid-here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Calendar Event",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/calendar/events/:id",
+							"host": ["{{base_url}}"],
+							"path": ["calendar", "events", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "event-uuid-here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Sample Blogs - Create Examples",
+			"description": "Use these requests to populate the database with sample blog data that matches the frontend standards. Each example demonstrates different block types and configurations. Run them in sequence.",
+			"item": [
+				{
+					"name": "1. Getting Started with React (Complete Example)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Getting Started with React\",\n  \"description\": \"Learn the fundamentals of React and build your first component. This comprehensive guide covers everything from JSX to hooks.\",\n  \"slug\": \"getting-started-with-react\",\n  \"author\": \"Sarah Johnson\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800\",\n  \"layout\": {\n    \"type\": \"single-column\",\n    \"maxWidth\": \"1200px\",\n    \"showTableOfContents\": true\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"React\", \"JavaScript\", \"Frontend\", \"Tutorial\"],\n  \"links\": [\n    {\n      \"label\": \"Official React Docs\",\n      \"url\": \"https://react.dev\",\n      \"type\": \"external\"\n    },\n    {\n      \"label\": \"React GitHub\",\n      \"url\": \"https://github.com/facebook/react\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"Introduction to React\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"React is a powerful JavaScript library for building user interfaces. Created by Facebook, it has become one of the most popular frontend frameworks in the world.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Why React?\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.\"\n      }\n    },\n    {\n      \"type\": \"callout\",\n      \"content\": {\n        \"variant\": \"info\",\n        \"title\": \"Pro Tip\",\n        \"content\": \"Start with Create React App for a quick setup without build configuration.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Installation\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"npx create-react-app my-app\\ncd my-app\\nnpm start\",\n        \"language\": \"bash\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Your First Component\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"function Welcome(props) {\\n  return <h1>Hello, {props.name}!</h1>;\\n}\",\n        \"language\": \"javascript\",\n        \"filename\": \"Welcome.js\"\n      }\n    },\n    {\n      \"type\": \"image\",\n      \"content\": {\n        \"src\": \"https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800\",\n        \"alt\": \"React logo and code\",\n        \"caption\": \"React makes building UIs simple and efficient\"\n      }\n    },\n    {\n      \"type\": \"quote\",\n      \"content\": {\n        \"text\": \"React makes it painless to create interactive UIs.\",\n        \"author\": \"React Team\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Congratulations! You've created your first React component. In the next sections, we'll explore more advanced concepts like hooks, state management, and performance optimization.\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+				{
+					"name": "2. TypeScript Best Practices (All Block Types)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"TypeScript Best Practices for Modern Development\",\n  \"description\": \"Discover essential TypeScript patterns and practices that will make your code more maintainable and type-safe.\",\n  \"slug\": \"typescript-best-practices\",\n  \"author\": \"Michael Chen\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800\",\n  \"layout\": {\n    \"type\": \"two-column\",\n    \"maxWidth\": \"1200px\",\n    \"showTableOfContents\": true\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"TypeScript\", \"Programming\", \"Best Practices\", \"Development\"],\n  \"links\": [\n    {\n      \"label\": \"TypeScript Handbook\",\n      \"url\": \"https://www.typescriptlang.org/docs/\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"TypeScript Best Practices\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"TypeScript brings static type checking to JavaScript, helping you catch errors early and write more robust code. Here are some best practices to follow.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"1. Use Strict Mode\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Always enable strict mode in your tsconfig.json. This enables a wide range of type checking behavior that results in stronger guarantees of program correctness.\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"{\\n  \\\"compilerOptions\\\": {\\n    \\\"strict\\\": true\\n  }\\n}\",\n        \"language\": \"json\",\n        \"filename\": \"tsconfig.json\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"2. Prefer Interfaces for Object Shapes\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"interface User {\\n  id: string;\\n  name: string;\\n  email: string;\\n}\",\n        \"language\": \"typescript\",\n        \"filename\": \"types.ts\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"3. Use Type Guards\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Type guards help TypeScript narrow down types, making your code safer and more predictable.\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"function isString(value: unknown): value is string {\\n  return typeof value === 'string';\\n}\",\n        \"language\": \"typescript\",\n        \"filename\": \"guards.ts\"\n      }\n    },\n    {\n      \"type\": \"quote\",\n      \"content\": {\n        \"text\": \"TypeScript is JavaScript with syntax for types.\",\n        \"author\": \"TypeScript Documentation\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+				{
+					"name": "3. Building RESTful APIs with Node.js",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Building RESTful APIs with Node.js and Express\",\n  \"description\": \"A complete guide to creating robust REST APIs using Node.js, Express, and best practices for production applications.\",\n  \"slug\": \"building-restful-apis-nodejs\",\n  \"author\": \"David Martinez\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800\",\n  \"layout\": {\n    \"type\": \"single-column\",\n    \"maxWidth\": \"900px\",\n    \"showTableOfContents\": false\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"Node.js\", \"Express\", \"API\", \"Backend\", \"REST\"],\n  \"links\": [\n    {\n      \"label\": \"Express.js Documentation\",\n      \"url\": \"https://expressjs.com/\",\n      \"type\": \"external\"\n    },\n    {\n      \"label\": \"Node.js Best Practices\",\n      \"url\": \"https://github.com/goldbergyoni/nodebestpractices\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"Building RESTful APIs\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"REST (Representational State Transfer) is an architectural style for designing networked applications. In this guide, we'll build a complete REST API using Node.js and Express.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Setting Up the Project\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"mkdir my-api\\ncd my-api\\nnpm init -y\\nnpm install express cors dotenv\",\n        \"language\": \"bash\",\n        \"filename\": null\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Basic Express Server\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"const express = require('express');\\nconst app = express();\\n\\napp.use(express.json());\\n\\napp.get('/api/users', (req, res) => {\\n  res.json({ users: [] });\\n});\\n\\napp.listen(3000, () => {\\n  console.log('Server running on port 3000');\\n});\",\n        \"language\": \"javascript\",\n        \"filename\": \"server.js\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"RESTful Principles\"\n      }\n    },\n    {\n      \"type\": \"list\",\n      \"content\": {\n        \"style\": \"unordered\",\n        \"items\": [\n          \"Use HTTP methods correctly (GET, POST, PUT, DELETE)\",\n          \"Use meaningful resource names\",\n          \"Return appropriate status codes\",\n          \"Handle errors consistently\",\n          \"Version your API\"\n        ]\n      }\n    },\n    {\n      \"type\": \"callout\",\n      \"content\": {\n        \"variant\": \"warning\",\n        \"title\": \"Important\",\n        \"content\": \"Always validate and sanitize user input to prevent security vulnerabilities.\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+				{
+					"name": "4. CSS Grid vs Flexbox (Two-Column Layout)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"CSS Grid vs Flexbox: When to Use Which\",\n  \"description\": \"Understanding the differences between CSS Grid and Flexbox, and learning when to use each layout system for optimal web design.\",\n  \"slug\": \"css-grid-vs-flexbox\",\n  \"author\": \"Emily Rodriguez\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800\",\n  \"layout\": {\n    \"type\": \"two-column\",\n    \"maxWidth\": \"1000px\",\n    \"showTableOfContents\": true\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"CSS\", \"Grid\", \"Flexbox\", \"Web Design\", \"Frontend\"],\n  \"links\": [\n    {\n      \"label\": \"CSS Grid Guide\",\n      \"url\": \"https://css-tricks.com/snippets/css/complete-guide-grid/\",\n      \"type\": \"external\"\n    },\n    {\n      \"label\": \"Flexbox Guide\",\n      \"url\": \"https://css-tricks.com/snippets/css/a-guide-to-flexbox/\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"CSS Grid vs Flexbox\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Both CSS Grid and Flexbox are powerful layout systems, but they serve different purposes. Understanding when to use each is crucial for modern web development.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Flexbox: One-Dimensional Layouts\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Flexbox is designed for one-dimensional layouts - either a row or a column. It's perfect for aligning items within a container.\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \".container {\\n  display: flex;\\n  justify-content: space-between;\\n  align-items: center;\\n}\",\n        \"language\": \"css\",\n        \"filename\": \"styles.css\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Grid: Two-Dimensional Layouts\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"CSS Grid excels at two-dimensional layouts - both rows and columns. It's ideal for complex page layouts.\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \".container {\\n  display: grid;\\n  grid-template-columns: repeat(3, 1fr);\\n  gap: 20px;\\n}\",\n        \"language\": \"css\",\n        \"filename\": \"styles.css\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"When to Use Each\"\n      }\n    },\n    {\n      \"type\": \"list\",\n      \"content\": {\n        \"style\": \"ordered\",\n        \"items\": [\n          \"Use Flexbox for components and small-scale layouts\",\n          \"Use Grid for page-level layouts\",\n          \"You can combine both - Grid for the page, Flexbox for components\",\n          \"Flexbox is better for content-driven layouts\",\n          \"Grid is better for layout-driven designs\"\n        ]\n      }\n    },\n    {\n      \"type\": \"divider\",\n      \"content\": {}\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"Remember: There's no one-size-fits-all solution. Often, the best layouts use both Grid and Flexbox together.\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+				{
+					"name": "5. Introduction to GraphQL (Minimal Example)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{admin_api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Introduction to GraphQL: A Modern API Query Language\",\n  \"description\": \"Learn how GraphQL revolutionizes API design by allowing clients to request exactly the data they need, nothing more, nothing less.\",\n  \"slug\": \"introduction-to-graphql\",\n  \"author\": \"Alex Thompson\",\n  \"coverImage\": \"https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800\",\n  \"layout\": {\n    \"type\": \"single-column\",\n    \"maxWidth\": \"850px\",\n    \"showTableOfContents\": true\n  },\n  \"settings\": {\n    \"enableVoting\": true,\n    \"enableSocialShare\": true,\n    \"enableComments\": true\n  },\n  \"tags\": [\"GraphQL\", \"API\", \"Backend\", \"Technology\"],\n  \"links\": [\n    {\n      \"label\": \"GraphQL Official Site\",\n      \"url\": \"https://graphql.org/\",\n      \"type\": \"external\"\n    },\n    {\n      \"label\": \"Apollo GraphQL\",\n      \"url\": \"https://www.apollographql.com/\",\n      \"type\": \"external\"\n    }\n  ],\n  \"blocks\": [\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 1,\n        \"text\": \"What is GraphQL?\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"GraphQL is a query language for APIs and a runtime for executing those queries. It provides a complete and understandable description of the data in your API.\"\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Key Benefits\"\n      }\n    },\n    {\n      \"type\": \"list\",\n      \"content\": {\n        \"style\": \"unordered\",\n        \"items\": [\n          \"Ask for exactly what you need\",\n          \"Get many resources in a single request\",\n          \"Strongly typed schema\",\n          \"Powerful developer tools\",\n          \"Evolve your API without versions\"\n        ]\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"Example Query\"\n      }\n    },\n    {\n      \"type\": \"code\",\n      \"content\": {\n        \"code\": \"query {\\n  user(id: \\\"1\\\") {\\n    name\\n    email\\n    posts {\\n      title\\n      content\\n    }\\n  }\\n}\",\n        \"language\": \"graphql\",\n        \"filename\": null\n      }\n    },\n    {\n      \"type\": \"heading\",\n      \"content\": {\n        \"level\": 2,\n        \"text\": \"GraphQL vs REST\"\n      }\n    },\n    {\n      \"type\": \"paragraph\",\n      \"content\": {\n        \"text\": \"While REST uses multiple endpoints for different resources, GraphQL uses a single endpoint. This allows clients to specify exactly what data they need, reducing over-fetching and under-fetching.\"\n      }\n    },\n    {\n      \"type\": \"callout\",\n      \"content\": {\n        \"variant\": \"success\",\n        \"title\": \"Pro Tip\",\n        \"content\": \"GraphQL is particularly useful for mobile applications where bandwidth is a concern.\"\n      }\n    }\n  ],\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["blogs"]
+						}
+					}
+				},
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "admin_api_key",
+			"value": "your-admin-api-key-here",
+			"type": "string"
+		},
+		{
+			"key": "session_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

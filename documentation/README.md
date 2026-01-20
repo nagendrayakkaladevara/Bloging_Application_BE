@@ -20,6 +20,20 @@ This folder contains all API documentation for the Blog Platform backend.
 - Status codes
 - Rate limits
 
+### [Blog_API.postman_collection.json](./Blog_API.postman_collection.json)
+**Postman Collection** - Ready-to-use API collection with:
+- All endpoints pre-configured
+- Environment variables setup
+- **6 dummy blog posts** for testing
+- Request examples with proper headers
+
+### [Postman_Setup.md](./Postman_Setup.md)
+**Postman Setup Guide** - Instructions for:
+- Importing the collection
+- Setting up variables
+- Creating dummy data
+- Testing endpoints
+
 ## 🚀 Quick Start
 
 **Base URL:**
@@ -52,9 +66,10 @@ Admin endpoints require `X-API-Key` header.
 
 ## 📖 Getting Started
 
-1. Read [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md) for quick overview
-2. Refer to [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for detailed implementation
-3. Check TypeScript examples in the full documentation
+1. **Quick Start:** Read [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md) for overview
+2. **Detailed Docs:** Refer to [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for implementation
+3. **Postman Testing:** Import [Blog_API.postman_collection.json](./Blog_API.postman_collection.json) and follow [Postman_Setup.md](./Postman_Setup.md)
+4. **Dummy Data:** Use the "Dummy Data - Create Blogs" folder in Postman to populate your database
 
 ## 🆘 Support
 

@@ -43,6 +43,22 @@ export function createApp(): Express {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
+  // Database health check
+  app.get('/health/db', async (req, res) => {
+    try {
+      const { prisma } = await import('./config/database');
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
+    } catch (error) {
+      res.status(503).json({ 
+        status: 'error', 
+        database: 'disconnected', 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString() 
+      });
+    }
+  });
+
   // API routes
   app.use('/api/v1/blogs', blogRoutes);
   app.use('/api/v1/search', searchRoutes);
