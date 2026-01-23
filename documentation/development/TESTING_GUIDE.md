@@ -242,7 +242,7 @@ curl -X POST http://localhost:3000/api/v1/blogs \
 1. **Import the Postman Collection:**
    - Open Postman
    - Click **Import**
-   - Select `documentation/Blog_API.postman_collection.json`
+   - Select `documentation/api/Blog_API.postman_collection.json`
 
 2. **Set Environment Variables:**
    - Edit the collection

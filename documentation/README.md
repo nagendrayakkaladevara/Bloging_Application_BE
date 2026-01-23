@@ -1,80 +1,123 @@
-# API Documentation
+# Blog Platform Backend - Documentation
 
-This folder contains all API documentation for the Blog Platform backend.
+Complete documentation for the Blog Platform Backend API.
 
-## 📚 Documentation Files
+## 📚 Documentation Structure
 
-### [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
-**Complete API Reference** - Comprehensive documentation with:
-- All endpoints (request/response examples)
-- Authentication & authorization
-- Error handling
-- Field validations
-- TypeScript integration examples
+This documentation is organized into the following sections:
 
-### [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md)
-**Quick Reference Guide** - Fast lookup for:
-- Endpoint summary table
-- Common query parameters
-- Response formats
-- Status codes
-- Rate limits
+### [API Documentation](./api/README.md)
+Complete API reference, integration guides, and Postman collection.
+- API endpoints and examples
+- Authentication and authorization
+- Request/response formats
+- Postman setup and testing
 
-### [Blog_API.postman_collection.json](./Blog_API.postman_collection.json)
-**Postman Collection** - Ready-to-use API collection with:
-- All endpoints pre-configured
-- Environment variables setup
-- **6 dummy blog posts** for testing
-- Request examples with proper headers
+### [Deployment Documentation](./deployment/README.md)
+Guides for deploying the application to production.
+- Quick start guide
+- Vercel deployment checklist
+- Deployment troubleshooting
+- Environment configuration
 
-### [Postman_Setup.md](./Postman_Setup.md)
-**Postman Setup Guide** - Instructions for:
-- Importing the collection
-- Setting up variables
-- Creating dummy data
-- Testing endpoints
+### [Development Documentation](./development/README.md)
+Development and testing guides.
+- Local development setup
+- Testing procedures
+- Development tools
+- Code quality standards
 
-## 🚀 Quick Start
+### [Troubleshooting Documentation](./troubleshooting/README.md)
+Solutions for common issues and errors.
+- Serverless function errors
+- Database connection issues
+- Deployment problems
+- API error resolution
 
-**Base URL:**
-- Development: `http://localhost:3000/api/v1`
-- Production: `https://api.yourdomain.com/api/v1`
+## 🚀 Quick Links
 
-**Authentication:**
-Admin endpoints require `X-API-Key` header.
+### Getting Started
+- **New to the project?** Start with [Quick Start Guide](./deployment/QUICKSTART.md)
+- **Setting up locally?** See [Development Guide](./development/README.md)
+- **Deploying to production?** Follow [Deployment Checklist](./deployment/DEPLOYMENT_CHECKLIST.md)
 
-## 📋 Endpoints Overview
+### API Integration
+- **Quick reference?** See [API Quick Reference](./api/API_QUICK_REFERENCE.md)
+- **Full documentation?** Read [API Documentation](./api/API_DOCUMENTATION.md)
+- **Testing with Postman?** Follow [Postman Setup](./api/Postman_Setup.md)
 
-| Category | Endpoints | Auth Required |
-|----------|-----------|---------------|
-| **Blogs** | 5 endpoints | Admin for write operations |
-| **Voting** | 2 endpoints | None |
-| **Comments** | 4 endpoints | Admin for moderation |
-| **Search** | 1 endpoint | None |
-| **Tags** | 2 endpoints | None |
-| **Calendar** | 4 endpoints | Admin for write operations |
+### Troubleshooting
+- **Serverless errors?** Read [Serverless Error Explanation](./troubleshooting/SERVERLESS_ERROR_EXPLANATION.md)
+- **Deployment issues?** Check [Vercel Troubleshooting](./deployment/VERCEL_DEPLOYMENT_TROUBLESHOOTING.md)
+- **General issues?** See [Troubleshooting Guide](./troubleshooting/README.md)
+
+## 📋 Documentation Index
+
+### API Documentation
+- [API Documentation](./api/API_DOCUMENTATION.md) - Complete API reference
+- [API Quick Reference](./api/API_QUICK_REFERENCE.md) - Quick endpoint lookup
+- [Postman Setup](./api/Postman_Setup.md) - Postman collection setup
+- [Postman Collection](./api/Blog_API.postman_collection.json) - Ready-to-use API collection
+
+### Deployment Documentation
+- [Quick Start](./deployment/QUICKSTART.md) - Get started quickly
+- [Deployment Checklist](./deployment/DEPLOYMENT_CHECKLIST.md) - Step-by-step deployment
+- [Vercel Deployment](./deployment/VERCEL_DEPLOYMENT.md) - Vercel deployment guide
+- [Vercel Troubleshooting](./deployment/VERCEL_DEPLOYMENT_TROUBLESHOOTING.md) - Deployment issues
+
+### Development Documentation
+- [Testing Guide](./development/TESTING_GUIDE.md) - Comprehensive testing instructions
+
+### Troubleshooting Documentation
+- [Serverless Error Explanation](./troubleshooting/SERVERLESS_ERROR_EXPLANATION.md) - Deep dive into serverless errors
 
 ## 🔑 Key Features
 
-- ✅ RESTful API design
-- ✅ Pagination support
+- ✅ RESTful API with TypeScript
+- ✅ PostgreSQL database with Prisma
+- ✅ Serverless deployment ready (Vercel)
+- ✅ Comprehensive error handling
+- ✅ Rate limiting and security
 - ✅ Full-text search
-- ✅ Rate limiting
-- ✅ Input validation
-- ✅ Error handling with codes
-- ✅ CORS enabled
+- ✅ Anonymous voting system
+- ✅ Comment moderation
 
-## 📖 Getting Started
+## 📖 Documentation Standards
 
-1. **Quick Start:** Read [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md) for overview
-2. **Detailed Docs:** Refer to [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for implementation
-3. **Postman Testing:** Import [Blog_API.postman_collection.json](./Blog_API.postman_collection.json) and follow [Postman_Setup.md](./Postman_Setup.md)
-4. **Dummy Data:** Use the "Dummy Data - Create Blogs" folder in Postman to populate your database
+This documentation follows production-level standards:
+
+- **Clear Structure:** Organized by topic and use case
+- **Comprehensive Coverage:** All features and endpoints documented
+- **Examples:** Code examples and use cases included
+- **Troubleshooting:** Common issues and solutions provided
+- **Up-to-Date:** Regularly maintained and updated
+
+## 🔗 External Resources
+
+- **Main README:** [../README.md](../README.md)
+- **Package.json:** [../package.json](../package.json)
+- **Environment Example:** [../.env.example](../.env.example)
+
+## 📝 Contributing
+
+When adding or updating documentation:
+
+1. Follow the existing structure and format
+2. Include code examples where applicable
+3. Update the relevant README files
+4. Keep documentation up-to-date with code changes
+5. Test all examples and code snippets
 
 ## 🆘 Support
 
-For questions or issues, contact the backend team.
+For questions or issues:
+
+1. Check the relevant documentation section
+2. Review troubleshooting guides
+3. Check server logs for errors
+4. Verify environment configuration
 
 ---
 
-**Last Updated:** 2024
+**Last Updated:** January 2025  
+**Version:** 1.0.0

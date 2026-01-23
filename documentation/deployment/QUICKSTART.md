@@ -103,8 +103,8 @@ curl -X POST http://localhost:3000/api/v1/blogs \
 
 ## Next Steps
 
-1. Review the [README.md](./README.md) for full documentation
-2. Check the API endpoints in the routes files
+1. Review the [Documentation Index](../README.md) for full documentation
+2. Check the [API Documentation](../api/README.md) for endpoint details
 3. Customize the configuration in `.env`
 4. Set up your frontend to connect to the API
 

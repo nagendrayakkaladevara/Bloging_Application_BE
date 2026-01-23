@@ -98,83 +98,57 @@ npm start
 
 The server will start on `http://localhost:3000` (or the port specified in `.env`).
 
-## API Documentation
+## 📚 Documentation
 
-### Base URL
+Complete documentation is available in the [`documentation/`](./documentation/) folder, organized by topic:
 
+### Quick Links
+
+- **[📖 Documentation Index](./documentation/README.md)** - Complete documentation overview
+- **[🚀 Quick Start Guide](./documentation/deployment/QUICKSTART.md)** - Get started quickly
+- **[📡 API Documentation](./documentation/api/README.md)** - Complete API reference
+- **[🚢 Deployment Guide](./documentation/deployment/README.md)** - Production deployment
+- **[🧪 Development Guide](./documentation/development/README.md)** - Development and testing
+- **[🐛 Troubleshooting](./documentation/troubleshooting/README.md)** - Common issues and solutions
+
+### Documentation Structure
+
+```
+documentation/
+├── README.md                    # Documentation index
+├── api/                         # API documentation
+│   ├── API_DOCUMENTATION.md     # Complete API reference
+│   ├── API_QUICK_REFERENCE.md   # Quick endpoint lookup
+│   ├── Postman_Setup.md         # Postman collection setup
+│   └── Blog_API.postman_collection.json
+├── deployment/                  # Deployment guides
+│   ├── QUICKSTART.md            # Quick start guide
+│   ├── DEPLOYMENT_CHECKLIST.md  # Deployment checklist
+│   ├── VERCEL_DEPLOYMENT.md     # Vercel deployment
+│   └── VERCEL_DEPLOYMENT_TROUBLESHOOTING.md
+├── development/                 # Development guides
+│   └── TESTING_GUIDE.md         # Testing instructions
+└── troubleshooting/             # Troubleshooting
+    └── SERVERLESS_ERROR_EXPLANATION.md
+```
+
+### API Quick Reference
+
+**Base URL:**
 - Development: `http://localhost:3000/api/v1`
 - Production: `https://api.yourdomain.com/api/v1`
 
-### Endpoints
-
-#### Blogs
-
-- `GET /api/v1/blogs` - Get all published blogs
+**Main Endpoints:**
+- `GET /api/v1/blogs` - Get all blogs
 - `GET /api/v1/blogs/:slug` - Get blog by slug
-- `POST /api/v1/blogs` - Create blog (admin only)
-- `PUT /api/v1/blogs/:slug` - Update blog (admin only)
-- `DELETE /api/v1/blogs/:slug` - Delete blog (admin only)
-
-#### Voting
-
-- `POST /api/v1/blogs/:slug/vote` - Vote on a blog
-- `DELETE /api/v1/blogs/:slug/vote` - Remove vote
-
-#### Comments
-
-- `GET /api/v1/blogs/:slug/comments` - Get comments for a blog
-- `POST /api/v1/blogs/:slug/comments` - Add a comment
-- `DELETE /api/v1/blogs/:slug/comments/:commentId` - Delete comment (admin only)
-- `PUT /api/v1/blogs/:slug/comments/:commentId/status` - Update comment status (admin only)
-
-#### Search
-
+- `POST /api/v1/blogs` - Create blog (admin)
 - `GET /api/v1/search?q=query` - Search blogs
-
-#### Tags
-
 - `GET /api/v1/tags` - Get all tags
-- `GET /api/v1/tags/:slug` - Get blogs by tag
 
-#### Calendar Events
+**Admin Authentication:**
+Admin endpoints require `X-API-Key` header. See [API Documentation](./documentation/api/README.md) for details.
 
-- `GET /api/v1/calendar/events` - Get calendar events
-- `POST /api/v1/calendar/events` - Create event (admin only)
-- `PUT /api/v1/calendar/events/:id` - Update event (admin only)
-- `DELETE /api/v1/calendar/events/:id` - Delete event (admin only)
-
-### Admin Authentication
-
-Admin endpoints require an API key in the request header:
-
-```
-X-API-Key: your-admin-api-key
-```
-
-### Response Format
-
-All responses follow this structure:
-
-**Success:**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Optional message"
-}
-```
-
-**Error:**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Error message",
-    "details": {}
-  }
-}
-```
+For complete API documentation, see [documentation/api/](./documentation/api/README.md).
 
 ## Project Structure
 
@@ -255,19 +229,24 @@ All migrations are stored in `prisma/migrations/`.
 
 ## Testing
 
+See the [Testing Guide](./documentation/development/TESTING_GUIDE.md) for comprehensive testing instructions.
+
 ```bash
 npm test
 ```
 
 ## Production Deployment
 
+For detailed deployment instructions, see the [Deployment Documentation](./documentation/deployment/README.md).
+
+**Quick Steps:**
 1. Set `NODE_ENV=production`
 2. Set a strong `ADMIN_API_KEY`
 3. Configure `CORS_ORIGIN` to your frontend domain
 4. Ensure database connection is secure (SSL)
-5. Use a process manager like PM2
-6. Set up reverse proxy (nginx)
-7. Enable HTTPS
+5. Follow the [Deployment Checklist](./documentation/deployment/DEPLOYMENT_CHECKLIST.md)
+
+For Vercel deployment, see [Vercel Deployment Guide](./documentation/deployment/VERCEL_DEPLOYMENT.md).
 
 ## License
 
