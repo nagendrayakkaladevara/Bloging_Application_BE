@@ -520,16 +520,28 @@ const options: swaggerJsdoc.Options = {
     const routesPath = path.join(__dirname, '../routes');
     const appPath = path.join(__dirname, '../app');
     
-    // Include both .ts and .js patterns
-    // In development: .ts files in src/ will match
-    // In production: .js files in dist/ will match
-    // swagger-jsdoc will use whichever files exist
-    return [
+    // For Vercel serverless: __dirname points to dist/config
+    // Include both .ts and .js patterns to work in all environments
+    const patterns = [
       path.join(routesPath, '*.ts'),
       path.join(routesPath, '*.js'),
       appPath + '.ts',
       appPath + '.js',
     ];
+    
+    // In Vercel, also check if we're in a different location
+    // Vercel may bundle files differently
+    if (process.env.VERCEL) {
+      // Try alternative paths that might exist in Vercel's build
+      const altRoutesPath = path.join(process.cwd(), 'dist', 'routes');
+      const altAppPath = path.join(process.cwd(), 'dist', 'app');
+      patterns.push(
+        path.join(altRoutesPath, '*.js'),
+        altAppPath + '.js'
+      );
+    }
+    
+    return patterns;
   })(),
 };
 
