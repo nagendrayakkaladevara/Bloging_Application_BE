@@ -1,8 +1,8 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import path from 'path';
 import fs from 'fs';
-import { config } from './env';
+import path from 'path';
 
+// Import the swagger options (same as in config/swagger.ts)
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
@@ -16,7 +16,7 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: `http://localhost:${config.port}`,
+        url: 'http://localhost:3000',
         description: 'Development server',
       },
       {
@@ -516,84 +516,21 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  // Support both .ts (development) and .js (production) files
-  // When compiled, files are in dist/, so we check both source and dist locations
-  // swagger-jsdoc will use whichever files exist
-  apis: (() => {
-    const routesPath = path.join(__dirname, '../routes');
-    const appPath = path.join(__dirname, '../app');
-    
-    // For Vercel serverless: __dirname points to dist/config
-    // Include both .ts and .js patterns to work in all environments
-    const patterns = [
-      path.join(routesPath, '*.ts'),
-      path.join(routesPath, '*.js'),
-      appPath + '.ts',
-      appPath + '.js',
-    ];
-    
-    // In Vercel, also check if we're in a different location
-    // Vercel may bundle files differently
-    if (process.env.VERCEL || process.env.VERCEL_ENV) {
-      // Try alternative paths that might exist in Vercel's build
-      const altRoutesPath = path.join(process.cwd(), 'dist', 'routes');
-      const altAppPath = path.join(process.cwd(), 'dist', 'app');
-      patterns.push(
-        path.join(altRoutesPath, '*.js'),
-        altAppPath + '.js'
-      );
-      
-      // Also try relative to __dirname in case cwd is different
-      const distRoutesPath = path.resolve(__dirname, '../../dist/routes');
-      const distAppPath = path.resolve(__dirname, '../../dist/app');
-      patterns.push(
-        path.join(distRoutesPath, '*.js'),
-        distAppPath + '.js'
-      );
-    }
-    
-    return patterns;
-  })(),
+  apis: [
+    path.join(__dirname, '../src/routes/*.ts'),
+    path.join(__dirname, '../src/app.ts'),
+  ],
 };
 
-// Generate swagger spec with error handling for serverless environments
-function generateSwaggerSpec(): any {
-  // First, try to load pre-generated spec from build (for production/Vercel)
-  const preGeneratedPath = path.join(__dirname, '../../dist/swagger-spec.json');
-  if (fs.existsSync(preGeneratedPath)) {
-    try {
-      const preGenerated = JSON.parse(fs.readFileSync(preGeneratedPath, 'utf-8'));
-      console.log('[Swagger] Loaded pre-generated spec from build');
-      return preGenerated;
-    } catch (error) {
-      console.warn('[Swagger] Failed to load pre-generated spec, falling back to runtime generation:', error);
-    }
-  }
-  
-  // Fallback to runtime generation (for development)
-  try {
-    const spec = swaggerJsdoc(options) as any;
-    
-    // If spec is empty or missing paths, log warning
-    if (!spec.paths || Object.keys(spec.paths).length === 0) {
-      console.warn('[Swagger] Warning: Generated spec has no paths. This might indicate file path issues.');
-      console.warn('[Swagger] Attempted paths:', options.apis);
-      console.warn('[Swagger] __dirname:', __dirname);
-      console.warn('[Swagger] process.cwd():', process.cwd());
-    } else {
-      console.log(`[Swagger] Generated spec with ${Object.keys(spec.paths).length} paths`);
-    }
-    
-    return spec;
-  } catch (error) {
-    console.error('[Swagger] Error generating spec:', error);
-    // Return a minimal spec so the UI at least loads
-    return {
-      ...options.definition,
-      paths: {},
-      openapi: '3.0.0',
-    };
-  }
+const spec = swaggerJsdoc(options);
+const outputPath = path.join(__dirname, '../dist/swagger-spec.json');
+
+// Ensure dist directory exists
+const distDir = path.dirname(outputPath);
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
 }
 
-export const swaggerSpec = generateSwaggerSpec();
+fs.writeFileSync(outputPath, JSON.stringify(spec, null, 2));
+console.log(`✅ Swagger spec generated at: ${outputPath}`);
+console.log(`   Found ${Object.keys(spec.paths || {}).length} paths`);
