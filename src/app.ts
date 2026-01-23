@@ -38,6 +38,23 @@ export function createApp(): Express {
     app.use(morgan('combined'));
   }
 
+  // Root endpoint
+  app.get('/', (_req, res) => {
+    res.json({ 
+      message: 'Blog API Server',
+      version: '1.0.0',
+      endpoints: {
+        health: '/health',
+        database: '/health/db',
+        blogs: '/api/v1/blogs',
+        search: '/api/v1/search',
+        tags: '/api/v1/tags',
+        calendar: '/api/v1/calendar'
+      },
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Health check
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
