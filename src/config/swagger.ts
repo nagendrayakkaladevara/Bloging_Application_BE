@@ -1,4 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import path from 'path';
 import { config } from './env';
 
 const options: swaggerJsdoc.Options = {
@@ -512,7 +513,24 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  apis: [__dirname + '/../routes/*.ts', __dirname + '/../app.ts'],
+  // Support both .ts (development) and .js (production) files
+  // When compiled, files are in dist/, so we check both source and dist locations
+  // swagger-jsdoc will use whichever files exist
+  apis: (() => {
+    const routesPath = path.join(__dirname, '../routes');
+    const appPath = path.join(__dirname, '../app');
+    
+    // Include both .ts and .js patterns
+    // In development: .ts files in src/ will match
+    // In production: .js files in dist/ will match
+    // swagger-jsdoc will use whichever files exist
+    return [
+      path.join(routesPath, '*.ts'),
+      path.join(routesPath, '*.js'),
+      appPath + '.ts',
+      appPath + '.js',
+    ];
+  })(),
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

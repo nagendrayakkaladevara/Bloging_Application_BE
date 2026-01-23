@@ -8,7 +8,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/calendar/events:
+ * /events:
  *   get:
  *     summary: Get calendar events
  *     description: Retrieve calendar events with optional date range and blog filtering
@@ -69,7 +69,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/calendar/events:
+ * /events:
  *   post:
  *     summary: Create a calendar event
  *     description: Create a new calendar event (Admin only)
@@ -116,7 +116,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/calendar/events/{id}:
+ * /events/{id}:
  *   put:
  *     summary: Update a calendar event
  *     description: Update an existing calendar event by ID (Admin only)
@@ -174,7 +174,7 @@ router.put(
 
 /**
  * @swagger
- * /api/v1/calendar/events/{id}:
+ * /events/{id}:
  *   delete:
  *     summary: Delete a calendar event
  *     description: Delete a calendar event by ID (Admin only)

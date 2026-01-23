@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/search:
+ * /:
  *   get:
  *     summary: Search blogs
  *     description: Search for blogs by query string with optional tag filtering

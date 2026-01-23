@@ -21,7 +21,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/blogs:
+ * /:
  *   get:
  *     summary: Get all blogs
  *     description: Retrieve a paginated list of blogs with optional filtering and sorting
@@ -96,7 +96,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}:
+ * /{slug}:
  *   get:
  *     summary: Get blog by slug
  *     description: Retrieve a single blog post by its slug
@@ -146,7 +146,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/blogs:
+ * /:
  *   post:
  *     summary: Create a new blog post
  *     description: Create a new blog post (Admin only)
@@ -193,7 +193,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}:
+ * /{slug}:
  *   put:
  *     summary: Update a blog post
  *     description: Update an existing blog post by slug (Admin only)
@@ -251,7 +251,7 @@ router.put(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}:
+ * /{slug}:
  *   delete:
  *     summary: Delete a blog post
  *     description: Delete a blog post by slug (Admin only)
@@ -295,7 +295,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}/vote:
+ * /{slug}/vote:
  *   post:
  *     summary: Vote on a blog post
  *     description: Submit an upvote or downvote for a blog post
@@ -363,7 +363,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}/vote:
+ * /{slug}/vote:
  *   delete:
  *     summary: Remove vote from a blog post
  *     description: Remove a previously submitted vote
@@ -422,7 +422,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}/comments:
+ * /{slug}/comments:
  *   get:
  *     summary: Get comments for a blog post
  *     description: Retrieve paginated comments for a specific blog post
@@ -490,7 +490,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}/comments:
+ * /{slug}/comments:
  *   post:
  *     summary: Create a comment on a blog post
  *     description: Submit a new comment on a blog post
@@ -543,7 +543,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/blogs/{slug}/comments/{commentId}:
+ * /{slug}/comments/{commentId}:
  *   delete:
  *     summary: Delete a comment
  *     description: Delete a comment by ID (Admin only)

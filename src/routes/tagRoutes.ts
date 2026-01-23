@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/tags:
+ * /:
  *   get:
  *     summary: Get all tags
  *     description: Retrieve all tags with optional filtering for popular tags
@@ -50,7 +50,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/tags/{slug}:
+ * /{slug}:
  *   get:
  *     summary: Get blogs by tag
  *     description: Retrieve all blogs associated with a specific tag
