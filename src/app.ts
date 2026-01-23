@@ -77,7 +77,7 @@ export function createApp(): Express {
           <script>
             window.onload = function() {
               const ui = SwaggerUIBundle({
-                url: './swagger.json',
+                url: '/api-docs/swagger.json',
                 dom_id: '#swagger-ui',
                 presets: [
                   SwaggerUIBundle.presets.apis,
