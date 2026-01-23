@@ -41,10 +41,71 @@ export function createApp(): Express {
   }
 
   // Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  // Use CDN assets for Vercel serverless compatibility
+  // In Vercel, static files from node_modules aren't served correctly,
+  // so we use CDN-hosted assets instead
+  const swaggerOptions: swaggerUi.SwaggerUiOptions = {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Blog API Documentation',
-  }));
+  };
+
+  // For Vercel, use CDN assets to avoid static file serving issues
+  if (process.env.VERCEL || process.env.VERCEL_ENV) {
+    // Serve the spec as JSON first (before HTML routes)
+    app.get('/api-docs/swagger.json', (_req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.send(swaggerSpec);
+    });
+
+    // Use custom HTML with CDN links
+    const customHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Blog API Documentation</title>
+          <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" />
+          <style>
+            .swagger-ui .topbar { display: none; }
+          </style>
+        </head>
+        <body>
+          <div id="swagger-ui"></div>
+          <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+          <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-standalone-preset.js"></script>
+          <script>
+            window.onload = function() {
+              const ui = SwaggerUIBundle({
+                url: './swagger.json',
+                dom_id: '#swagger-ui',
+                presets: [
+                  SwaggerUIBundle.presets.apis,
+                  SwaggerUIStandalonePreset
+                ],
+                layout: "StandaloneLayout"
+              });
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Serve the custom HTML
+    app.get('/api-docs', (_req, res) => {
+      res.setHeader('Content-Type', 'text/html');
+      res.send(customHtml);
+    });
+
+    // Handle /api-docs/ route
+    app.get('/api-docs/', (_req, res) => {
+      res.setHeader('Content-Type', 'text/html');
+      res.send(customHtml);
+    });
+  } else {
+    // In development, use default asset serving
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
+  }
 
   // Root endpoint
   /**
